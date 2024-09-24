@@ -1,0 +1,48 @@
+name: Good First Issue Picker
+
+on:
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  find_and_add_issues_to_test_project:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4  # Updated for Node.js 20
+
+    - name: List all open Good-First-Issue-labeled issues and add to project
+      uses: actions/github-script@v7  # Updated for Node.js 20
+      with:
+        script: |
+          try {
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Fetch all issues labeled 'good-first-issue'
+            const issues = await github.rest.issues.listForRepo({
+              owner: owner,
+              repo: repo,
+              labels: "good-first-issue",
+              state: "open"
+            });
+
+            if (issues.data.length === 0) {
+              core.info("No Good-First-Issue-labeled issues found.");
+              return;
+            }
+
+            // Loop through issues and add them to the project
+            for (const issue of issues.data) {
+              core.info(`Found issue: ${issue.title} (#${issue.number})`);
+
+              // Add issue to the column with ID 1 (To be picked)
+              await github.rest.projects.createCard({
+                column_id: 1,  // Use column ID 1 for 'To be picked'
+                content_id: issue.id,
+                content_type: "Issue"
+              });
+            }
+          } catch (error) {
+            core.setFailed(`Workflow failed with error: ${error.message}`);
+          }

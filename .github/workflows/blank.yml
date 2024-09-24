@@ -23,7 +23,7 @@ jobs:
             const issues = await github.rest.issues.listForRepo({
               owner: owner,
               repo: repo,
-              labels: "good-first-issue",
+              labels: "good first issue",
               state: "open"
             });
 

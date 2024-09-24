@@ -20,7 +20,7 @@ jobs:
             const repo = context.repo.repo;
 
             // Fetch all issues labeled 'good-first-issue'
-            const issues = await github.issues.listForRepo({
+            const issues = await github.rest.issues.listForRepo({
               owner: owner,
               repo: repo,
               labels: "good-first-issue",
@@ -37,12 +37,8 @@ jobs:
               core.info(`Found issue: ${issue.title} (#${issue.number})`);
 
               // Add issue to the column with ID 1 (To be picked)
-              await github.projects.createCard({
+              await github.rest.projects.createCard({
                 column_id: 1,  // Use column ID 1 for 'To be picked'
                 content_id: issue.id,
                 content_type: "Issue"
               });
-            }
-          } catch (error) {
-            core.setFailed(`Workflow failed with error: ${error.message}`);
-          }

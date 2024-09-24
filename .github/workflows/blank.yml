@@ -37,7 +37,7 @@ jobs:
             for (const issue of issues.data) {
               core.info(`Found issue: ${issue.title} (#${issue.number})`);
 
-              // Add issue to the 'To be picked' column in 'test-project' (using column ID 1)
+              // Add issue to the 'To be picked' column in 'test-project'
               await github.rest.projects.createCard({
                 column_id: 1,  # Column ID for 'To be picked'
                 content_id: issue.id,

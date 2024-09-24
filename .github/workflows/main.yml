@@ -1,0 +1,46 @@
+name: Good First Issue Picker
+
+on:
+  schedule:
+    - cron: '41 22 * * *'  # Runs daily at 10:41 PM UTC (4:11 AM IST)
+  workflow_dispatch:        # Allows manual triggering of the workflow
+
+jobs:
+  find_and_add_issues_to_test_project:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: List all open Good-First-Issue-labeled issues and add to project
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const owner = context.repo.owner;
+          const repo = context.repo.repo;
+          
+          // Get all issues labeled with 'good-first-issue'
+          const issues = await github.issues.listForRepo({
+            owner: owner,
+            repo: repo,
+            labels: "good-first-issue",
+            state: "open"
+          });
+
+          if (issues.data.length === 0) {
+            core.info("No Good-First-Issue-labeled issues found.");
+            return;
+          }
+
+          // Loop through issues and add them to the project
+          for (const issue of issues.data) {
+            core.info(`Found issue: ${issue.title} (#${issue.number})`);
+
+            // Add issue to the test-project (replace with your column ID)
+            await github.projects.createCard({
+              column_id: <YOUR_COLUMN_ID>,  // Replace with the column ID in the test-project
+              content_id: issue.id,
+              content_type: "Issue"
+            });
+          }
